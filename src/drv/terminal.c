@@ -38,12 +38,12 @@ static int send_msg(uint8_t *data,
 static int send_msg(uint8_t *data,
                     uint8_t size)
 {
-    print_dbgmsgnofunc("TX: ");
+    print_dbgmsgnofuncnoarg("TX: ");
     for (int i = 0; i < size; i++)
     {
         print_dbgmsgnofunc("0x%02x ",data[i]);//(char*)&data[0]);
     }
-    print_dbgmsgnofunc("\n");
+    print_dbgmsgnofuncnoarg("\n");
     write(terminal.fd, &data[0], size);
     return 0;
 }
@@ -84,11 +84,11 @@ int terminal_send_msg(__u8 *data,
                       __u8 size)
 {
     int res = 0;
-    print_dbgmsg("Enter\n");
+    print_dbgmsgnoarg("Enter\n");
     if (send_msg((uint8_t*)data, (uint8_t)size) != 0){
         res = (-1);
 	}
-    print_dbgmsg("End\n");
+    print_dbgmsgnoarg("End\n");
     return res;
 }
 
@@ -98,12 +98,12 @@ void *th_ctrl_call(void *vargp)
     while(1){
         if ( terminal.size )
         {
-            print_dbgmsgnofunc("RX: ");
+            print_dbgmsgnofuncnoarg("RX: ");
             for (int i = 0; i < terminal.size; i++)
             {
                 print_dbgmsgnofunc("0x%02x ",(*(uint8_t*)&terminal.rx_buffer[i]));//(char*)&data[0]);
             }
-            print_dbgmsgnofunc("\n");
+            print_dbgmsgnofuncnoarg("\n");
             parse((__u8*)&terminal.rx_buffer[0]);
             terminal.size = 0;
         }
@@ -119,8 +119,7 @@ void *th_ctrl(void *vargp)
 }
 
 int terminal_open(char* device_address) {
-    int flags;
-    print_dbgmsg("Enter\n");
+    print_dbgmsgnoarg("Enter\n");
     memset(&terminal, 0, sizeof(terminal_struct_t));
 
     terminal.fd = open(device_address, O_RDWR);
@@ -151,14 +150,14 @@ int terminal_open(char* device_address) {
         pthread_create(&terminal.thread_id, NULL, th_ctrl, NULL);
         pthread_create(&terminal.thread_id_call, NULL, th_ctrl_call, NULL);
     }
-    print_dbgmsg("End\n");
+    print_dbgmsgnoarg("End\n");
     return 0;
 }
 
 int terminal_close(void) {
-    print_dbgmsg("Enter\n");
+    print_dbgmsgnoarg("Enter\n");
     close(terminal.fd); /* cleanup */
-    print_dbgmsg("End\n");
+    print_dbgmsgnoarg("End\n");
     return 0;
 }
 

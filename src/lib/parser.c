@@ -35,23 +35,23 @@ api_callbacks_fn_t *p_parser_callback_func_tbl =
 /*end*/
 int parse_callbacks_unreg()
 {
-    print_dbgmsg("Enter\n");
+    print_dbgmsgnoarg("Enter\n");
     p_parser_callback_func_tbl = &parser_callback_func_tbl_null;
-    print_dbgmsg("End\n");
+    print_dbgmsgnoarg("End\n");
     return 0;
 }
 
 int parse_callbacks_reg(void *p_callback)
 {
     int res=0;
-    print_dbgmsg("Enter\n");
+    print_dbgmsgnoarg("Enter\n");
     if ((api_callbacks_fn_t *)p_callback != NULL)
         p_parser_callback_func_tbl = (api_callbacks_fn_t *)p_callback;
     else{
         print_errmsg("%d nullptr,\n", __LINE__);
         res=(-1);
     }
-    print_dbgmsg("End\n");
+    print_dbgmsgnoarg("End\n");
     return res;
 }
 
