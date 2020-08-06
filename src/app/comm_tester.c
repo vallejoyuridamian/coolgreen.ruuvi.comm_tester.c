@@ -20,7 +20,7 @@
 #define PAYLOAD_INPUT_YES 1
 #define PAYLOAD_INPUT_NO 0
 #define INVALID_PARAM_NUM 255
-#define MAX_PARAMS_NUM_SIZE  0x1FF
+#define MAX_PARAMS_NUM_SIZE  255
 #define IS_PAYLOAD_SET(x) (x->is_set)
 
 #define DEFAULT_FLTR_ID_NUM             0
@@ -96,7 +96,6 @@ __u32 cmd_array[] =
     RE_CA_UART_SET_CH_37,
     RE_CA_UART_SET_CH_38,
     RE_CA_UART_SET_CH_39,
-    RE_CA_UART_SET_ALL,
 };
 
 static void set_param(comm_tester_param_input_t *p_in,
