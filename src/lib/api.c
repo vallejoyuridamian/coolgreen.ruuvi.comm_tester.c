@@ -215,6 +215,7 @@ static void api_ack_callback(const __u8 * const buffer)
         "RE_CA_UART_SET_FLTR_ID",
         "RE_CA_UART_SET_CODED_PHY",
         "RE_CA_UART_SET_SCAN_1MB_PHY",
+        "RE_CA_UART_SET_EXT_PAYLOAD",
         "RE_CA_UART_SET_CH_37",
         "RE_CA_UART_SET_CH_38",
         "RE_CA_UART_SET_CH_39",
