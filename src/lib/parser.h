@@ -1,8 +1,9 @@
-/*
- * parser.h
+/**
+ * Parser helper.
+ * Parse incomming data from linux terminal
  *
- *  Created on: Apr 26, 2019
- *      Author: user
+ * License: BSD-3
+ * Author: Oleg Protasevich
  */
 
 #ifndef PARSER_H_

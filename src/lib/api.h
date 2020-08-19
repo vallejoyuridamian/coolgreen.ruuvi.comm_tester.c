@@ -1,8 +1,9 @@
-/*
- * api.h
+/**
+ * Api helper.
+ * Api to use ruuvi_endpoints_ca_uart with linux terminal
  *
- *  Created on: Apr 26, 2019
- *      Author: user
+ * License: BSD-3
+ * Author: Oleg Protasevich
  */
 
 #ifndef API_H_

@@ -1,9 +1,3 @@
-/*
- * parser.c
- *
- *  Created on: Apr 26, 2019
- *      Author: user
- */
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>

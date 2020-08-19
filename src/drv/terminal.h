@@ -1,8 +1,9 @@
-/*
- * terminal.h
+/**
+ * Terminal helper.
+ * Defines some params to use linux terminal.
  *
- *  Created on: Apr 26, 2019
- *      Author: user
+ * License: BSD-3
+ * Author: Oleg Protasevich
  */
 
 #ifndef TERMINAL_H_
@@ -25,8 +26,6 @@ int terminal_open(char* device_address);
 int terminal_close(void);
 int terminal_send_msg(__u8 *data,
                       __u8 size);
-//int terminal_send_msg(uint8_t *data,
-//                      uint8_t size)
 /*end*/
 
 #endif /* TERMINAL_H_ */

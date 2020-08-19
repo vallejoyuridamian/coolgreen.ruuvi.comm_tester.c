@@ -1,8 +1,9 @@
-/*
- * debug.h
+/**
+ * Debug helper.
+ * Defines functions to show log
  *
- *  Created on: Apr 26, 2019
- *      Author: user
+ * License: BSD-3
+ * Author: Oleg Protasevich
  */
 
 #ifndef DEBUG_H

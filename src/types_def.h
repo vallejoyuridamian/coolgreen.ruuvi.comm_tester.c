@@ -1,8 +1,9 @@
-/*
- * types_def.h
+/**
+ * Types helper.
+ * Defines specific types for api
  *
- *  Created on: Apr 26, 2019
- *      Author: user
+ * License: BSD-3
+ * Author: Oleg Protasevich
  */
 
 #ifndef TYPES_DEF_H_
