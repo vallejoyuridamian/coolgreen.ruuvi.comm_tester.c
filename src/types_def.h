@@ -11,8 +11,8 @@
 #include <linux/types.h>
 
 typedef struct __api_callbacks_fn_t {
-    void (*ApiAckCallback)(const __u8 * const buffer);
-    void (*ApiReportCallback)(const __u8 * const buffer);
+    int (*ApiAckCallback)(const __u8 * const buffer);
+    int (*ApiReportCallback)(const __u8 * const buffer);
 }api_callbacks_fn_t;
 
 #endif /* TYPES_DEF_H_ */

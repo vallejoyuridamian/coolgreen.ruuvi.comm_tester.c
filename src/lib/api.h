@@ -11,7 +11,7 @@
 #include <linux/types.h>
 /***USER_FUNCTIONS**/
 /*start*/
-__s8 api_process(void);
+__s8 api_process(__u8 state);
 __s8 api_send_fltr_id(__u32 cmd, __u16 id);
 __s8 api_send_bool_payload(__u32 cmd, __u8 state);
 __s8 api_send_all(__u32 cmd,

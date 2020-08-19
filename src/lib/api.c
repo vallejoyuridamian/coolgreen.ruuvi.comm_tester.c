@@ -27,8 +27,8 @@
 
 /***USER_STATIC_FUNCTIONS**/
 /*start*/
-static void api_ack_callback(const uint8_t * const buffer);
-static void api_report_callback(const uint8_t * const buffer);
+static int api_ack_callback(const uint8_t * const buffer);
+static int api_report_callback(const uint8_t * const buffer);
 /*end*/
 
 /***USER_VARIABLES***/
@@ -38,6 +38,7 @@ api_callbacks_fn_t parser_callback_func_tbl = {
     .ApiReportCallback  = api_report_callback,
 };
 
+__u8 report_state = 0;
 /*end*/
 
 __s8 api_send_bool_payload(__u32 cmd, __u8 state)
@@ -196,8 +197,9 @@ __s8 api_send_all(__u32 cmd,
 
 /***USER_CALLBACKS**/
 /*start*/
-static void api_ack_callback(const __u8 * const buffer)
+static int api_ack_callback(const __u8 * const buffer)
 {
+    int res = -1;
     re_ca_uart_payload_t uart_payload = {0};
     char ack_state_name[2][32] =
     {
@@ -243,44 +245,52 @@ static void api_ack_callback(const __u8 * const buffer)
 
     if (RE_SUCCESS == re_ca_uart_decode ((uint8_t*)buffer, &uart_payload))
     {
+        res = 0;
         print_logmsgnofuncnoarg("-----ACK-----\n");
         print_logmsgnofunc("CMD: %s\n",
                            ack_cmd_name[(uint8_t)uart_payload.params.ack.cmd]);
         print_logmsgnofunc("ACK state: %s\n",
                            ack_state_name[(uint8_t)uart_payload.params.ack.ack_state.state]);
     }
+    return res;
 }
 
-static void api_report_callback(const __u8 * const buffer)
+static int api_report_callback(const __u8 * const buffer)
 {
+    int res = -1;
     re_ca_uart_payload_t uart_payload = {0};
     if (RE_SUCCESS == re_ca_uart_decode ((uint8_t*)buffer, &uart_payload))
     {
-        print_logmsgnofuncnoarg("-----REPORT-----\n");
-        print_logmsgnofunc("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-                            uart_payload.params.adv.mac[0],
-                            uart_payload.params.adv.mac[1],
-                            uart_payload.params.adv.mac[2],
-                            uart_payload.params.adv.mac[3],
-                            uart_payload.params.adv.mac[4],
-                            uart_payload.params.adv.mac[5]);
-
-        print_logmsgnofuncnoarg("ADV: ");
-        for (int i = 0; i < uart_payload.params.adv.adv_len; i++)
+        res =0;
+        if (!report_state)
         {
-            print_logmsgnofunc("%02x ",uart_payload.params.adv.adv[i]);
-        }
-        print_logmsgnofuncnoarg("\n");
-        print_logmsgnofunc("RSSI: %d db\n", uart_payload.params.adv.rssi_db);
+            print_logmsgnofuncnoarg("-----REPORT-----\n");
+            print_logmsgnofunc("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                uart_payload.params.adv.mac[0],
+                                uart_payload.params.adv.mac[1],
+                                uart_payload.params.adv.mac[2],
+                                uart_payload.params.adv.mac[3],
+                                uart_payload.params.adv.mac[4],
+                                uart_payload.params.adv.mac[5]);
 
+            print_logmsgnofuncnoarg("ADV: ");
+            for (int i = 0; i < uart_payload.params.adv.adv_len; i++)
+            {
+                print_logmsgnofunc("%02x ",uart_payload.params.adv.adv[i]);
+            }
+            print_logmsgnofuncnoarg("\n");
+            print_logmsgnofunc("RSSI: %d db\n", uart_payload.params.adv.rssi_db);
+        }
     }
+    return res;
 }
 
 /*end*/
 
-__s8 api_process(void)
+__s8 api_process(__u8 state)
 {
     print_dbgmsgnoarg("Enter\n");
+    report_state = state;
     parse_callbacks_reg((void*)&parser_callback_func_tbl);
     while(1){
     }

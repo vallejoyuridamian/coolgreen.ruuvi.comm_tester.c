@@ -44,6 +44,7 @@ static void help(void)
     print_logmsgnofuncnoarg("-c7 : set channel 37 value\n");
     print_logmsgnofuncnoarg("-c8 : set channel 38 value\n");
     print_logmsgnofuncnoarg("-c9 : set channel 39 value\n");
+    print_logmsgnofuncnoarg("-o : disable report output\n");
     print_logmsgnofuncnoarg("-r : run receiver mode\n");
     print_logmsgnofuncnoarg("-b : run receiver in backgroung mode\n");
     print_logmsgnofuncnoarg("-h : help\n");
@@ -114,6 +115,7 @@ int main(int argc, char *argv[])
     __u8 mode=0;
     __u8 rx=0;
     __u32 param_num;
+    __u8 ignore_report = 0;
     print_dbgmsgnoarg("Enter\n");
 
     while(i < argc){
@@ -132,6 +134,10 @@ int main(int argc, char *argv[])
                 case 'r':
                 case 'R':
                     rx = 1;
+                    break;
+                case 'o':
+                case 'O':
+                    ignore_report = 1;
                     break;
                 case 'f':
                 case 'F':
@@ -200,7 +206,7 @@ int main(int argc, char *argv[])
         signal(SIGKILL, signalHandlerShutdown);
 
         if (terminal_open(deviceCom) == 0){
-            res = api_process();
+            res = api_process(ignore_report);
             terminal_close();
         }else{
             print_errmsgnoarg("No device\n");

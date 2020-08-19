@@ -56,17 +56,17 @@ int parse_callbacks_reg(void *p_callback)
 }
 
 int parse(__u8 *buffer) {
+    int res = -1;
     switch (buffer[RE_CA_UART_CMD_INDEX])
     {
         case RE_CA_UART_ACK:
-            p_parser_callback_func_tbl->ApiAckCallback(buffer);
+            res = p_parser_callback_func_tbl->ApiAckCallback(buffer);
             break;
         case RE_CA_UART_ADV_RPRT:
-            p_parser_callback_func_tbl->ApiReportCallback(buffer);
+            res = p_parser_callback_func_tbl->ApiReportCallback(buffer);
             break;
-
         default:
             break;
     }
-    return 0;
+    return res;
 }
