@@ -22,6 +22,8 @@ typedef struct __terminal_struct{
     int size;
     int fd;
     uint8_t rx_buffer[RX_BUFFER_MAX_SIZE];
+    uint8_t rx_buffer_error[RX_BUFFER_MAX_SIZE<<1];
+    uint8_t rx_buffer_error_index;
 }terminal_struct_t;
 #pragma pack(pop)
 /*end*/
@@ -63,7 +65,7 @@ static int wait(uint8_t *data_p, uint32_t timeout)
             rx_size+= rx_size_it;
             for (int i = 0; i < rx_size; i++)
             {
-                if ((*(uint8_t*)&data[i]) == 0x12)
+                if ((*(uint8_t*)&data[i]) == 0x0a)
                 {
                     memcpy(data_p ,data, rx_size);
                     terminal.size = rx_size;
@@ -101,10 +103,26 @@ void *th_ctrl_call(void *vargp)
             print_dbgmsgnofuncnoarg("RX: ");
             for (int i = 0; i < terminal.size; i++)
             {
-                print_dbgmsgnofunc("0x%02x ",(*(uint8_t*)&terminal.rx_buffer[i]));//(char*)&data[0]);
+               print_dbgmsgnofunc("0x%02x ",(*(uint8_t*)&terminal.rx_buffer[i]));
             }
             print_dbgmsgnofuncnoarg("\n");
-            parse((__u8*)&terminal.rx_buffer[0]);
+            if ( (-1) == parse((__u8*)&terminal.rx_buffer[0]))
+            {
+                memcpy((terminal.rx_buffer_error + terminal.rx_buffer_error_index),
+                       terminal.rx_buffer,
+                       terminal.size);
+                terminal.rx_buffer_error_index += terminal.size;
+                if ( 0 == parse((__u8*)&terminal.rx_buffer_error[0]))
+                {
+                    memset(terminal.rx_buffer_error, 0, RX_BUFFER_MAX_SIZE<<1);
+                    terminal.rx_buffer_error_index =0;
+                }
+            }
+            else
+            {
+                memset(terminal.rx_buffer_error, 0, RX_BUFFER_MAX_SIZE<<1);
+                terminal.rx_buffer_error_index =0;
+            }
             terminal.size = 0;
         }
     }
@@ -115,6 +133,7 @@ void *th_ctrl(void *vargp)
     while (terminal.fd < 0);
     while(1){
         wait(terminal.rx_buffer, RX_ASK_TIMEOUT);
+        //usleep(100000);
     }
 }
 
@@ -145,6 +164,7 @@ int terminal_open(char* device_address) {
         settings .c_cflag |= CS8;
 
         terminal.size = 0;
+        terminal.rx_buffer_error_index = 0;
         tcsetattr(terminal.fd, TCSANOW, &settings); 	/* apply the settings */
         tcflush(terminal.fd, TCOFLUSH);
         pthread_create(&terminal.thread_id, NULL, th_ctrl, NULL);

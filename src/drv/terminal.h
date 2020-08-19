@@ -13,7 +13,7 @@
 /***USER_DEFINES***/
 /*start*/
 #define ONE_SYMBOL_DELAY 		1 	//us
-#define RX_BUFFER_MAX_SIZE  	1024
+#define RX_BUFFER_MAX_SIZE  	4096
 #define STEP_RX_TIMEOUT  		1000 //us
 #define RX_ASK_TIMEOUT  		5000 //in 1000us
 #define DEFAULT_BAUDRATE  		B115200//in 1000us
