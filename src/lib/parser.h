@@ -9,7 +9,11 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 
+#ifndef RUUVI_ESP
 #include <linux/types.h>
+#else
+#include "ruuvidongle.h"
+#endif
 
 /***USER_FUNCTIONS***/
 /*start*/

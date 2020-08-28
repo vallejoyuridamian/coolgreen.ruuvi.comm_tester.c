@@ -14,6 +14,9 @@
 #include "parser.h"
 #include "time.h"
 #include "ruuvi_endpoint_ca_uart.h"
+#ifdef RUUVI_ESP
+#include "adv_post.h"
+#endif
 /*end*/
 
 /***USER_DEFINES***/
@@ -39,6 +42,7 @@ api_callbacks_fn_t parser_callback_func_tbl = {
 };
 
 __u8 report_state = 0;
+
 /*end*/
 
 __s8 api_send_bool_payload(__u32 cmd, __u8 state)
@@ -262,6 +266,9 @@ static int api_report_callback(const __u8 * const buffer)
     if (RE_SUCCESS == re_ca_uart_decode ((uint8_t*)buffer, &uart_payload))
     {
         res =0;
+#ifdef RUUVI_ESP
+        adv_post_send((void *)&uart_payload);
+#endif
         if (!report_state)
         {
             print_logmsgnofuncnoarg("-----REPORT-----\n");
@@ -274,10 +281,15 @@ static int api_report_callback(const __u8 * const buffer)
                                 uart_payload.params.adv.mac[5]);
 
             print_logmsgnofuncnoarg("ADV: ");
+#ifndef RUUVI_ESP
             for (int i = 0; i < uart_payload.params.adv.adv_len; i++)
             {
                 print_logmsgnofunc("%02x ",uart_payload.params.adv.adv[i]);
             }
+#else
+            print_logmshexdump((char*)&uart_payload.params.adv.adv[0],
+                                uart_payload.params.adv.adv_len);
+#endif
             print_logmsgnofuncnoarg("\n");
             print_logmsgnofunc("RSSI: %d db\n", uart_payload.params.adv.rssi_db);
         }
@@ -292,9 +304,11 @@ __s8 api_process(__u8 state)
     print_dbgmsgnoarg("Enter\n");
     report_state = state;
     parse_callbacks_reg((void*)&parser_callback_func_tbl);
+#ifndef RUUVI_ESP
     while(1){
     }
     parse_callbacks_unreg();
+#endif
     print_dbgmsgnoarg("End\n");
     return 0;
 }

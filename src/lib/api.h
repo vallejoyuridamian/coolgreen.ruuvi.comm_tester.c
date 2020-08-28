@@ -9,7 +9,12 @@
 #ifndef API_H_
 #define API_H_
 
+#ifndef RUUVI_ESP
 #include <linux/types.h>
+#else
+#include "ruuvidongle.h"
+#endif
+
 /***USER_FUNCTIONS**/
 /*start*/
 __s8 api_process(__u8 state);
