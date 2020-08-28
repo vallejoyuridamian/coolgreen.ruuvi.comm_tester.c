@@ -40,9 +40,10 @@ int parse_callbacks_reg(void *p_callback)
     int res=0;
     print_dbgmsgnoarg("Enter\n");
     if ((api_callbacks_fn_t *)p_callback != NULL)
+    {
         p_parser_callback_func_tbl = (api_callbacks_fn_t *)p_callback;
-    else{
-        print_errmsg("%d nullptr,\n", __LINE__);
+    }else{
+        print_errmsgnofuncnoarg("Nullptr\n");
         res=(-1);
     }
     print_dbgmsgnoarg("End\n");
