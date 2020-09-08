@@ -1,6 +1,9 @@
-if(IDF_VERSION_MAJOR GREATER_EQUAL 4)
-    string(APPEND CMAKE_C_FLAGS " -DRUUVI_ESP")
-    idf_component_register(
+cmake_minimum_required(VERSION 3.7)
+
+if(${ESP_PLATFORM})
+
+string(APPEND CMAKE_C_FLAGS " -DRUUVI_ESP")
+idf_component_register(
         SRCS
             src/drv/terminal.c
             src/lib/api.c
@@ -8,14 +11,68 @@ if(IDF_VERSION_MAJOR GREATER_EQUAL 4)
         INCLUDE_DIRS
             src
             src/drv
-	    src/lib
+            src/lib
         INCLUDE_DIRS
             ../../main/includes
-            ../ruuvi.boards.c
-            src/ruuvi.endpoints.c/src
-        )
+            ../../components/ruuvi.boards.c
+            components/ruuvi.endpoints.c/src
+)
+
 else()
-    set(COMPONENT_SRCDIRS src)
-    set(COMPONENT_ADD_INCLUDEDIRS src)
-    register_component()
+
+project(ruuvi_comm_tester)
+set(ProjectId ruuvi_comm_tester)
+
+set(RUUVI_APP_SOURCES
+        src/app/comm_tester.c
+)
+
+set(RUUVI_DRV_SOURCES
+        src/drv/terminal.c
+)
+
+set(COMPONENTS components)
+
+set(RUUVI_LIB_SOURCES
+        src/lib/api.c
+        src/lib/parser.c
+        ${COMPONENTS}/ruuvi.endpoints.c/src/ruuvi_endpoint_ca_uart.c
+)
+
+include_directories(
+        src
+        src/app
+        src/lib
+        src/drv
+        ${COMPONENTS}/ruuvi.endpoints.c/src
+)
+
+add_executable(${ProjectId}
+        ${RUUVI_APP_SOURCES}
+        ${RUUVI_DRV_SOURCES}
+        ${RUUVI_LIB_SOURCES}
+)
+
+set_target_properties(${ProjectId} PROPERTIES
+        C_STANDARD 11
+        CXX_STANDARD 14
+)
+
+target_compile_definitions(${ProjectId} PUBLIC
+        _DEFAULT_SOURCE
+)
+
+target_compile_options(${ProjectId} PUBLIC
+        -c
+        -Wall
+        -pedantic
+        -Wno-variadic-macros
+        -Wno-long-long
+        -Wno-shadow
+)
+
+target_link_libraries(${ProjectId}
+        pthread
+)
+
 endif()
