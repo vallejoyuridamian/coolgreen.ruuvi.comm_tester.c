@@ -65,6 +65,9 @@ parse(__u8 *buffer)
         case RE_CA_UART_ADV_RPRT:
             res = p_parser_callback_func_tbl->ApiReportCallback(buffer);
             break;
+        case RE_CA_UART_DEVICE_ID:
+            res = p_parser_callback_func_tbl->ApiIdCallback(buffer);
+            break;
         default:
             break;
     }

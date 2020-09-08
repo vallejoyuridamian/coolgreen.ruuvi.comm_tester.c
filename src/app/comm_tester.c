@@ -45,6 +45,7 @@ help(void)
     print_logmsgnofuncnoarg("-c7 : set channel 37 value\n");
     print_logmsgnofuncnoarg("-c8 : set channel 38 value\n");
     print_logmsgnofuncnoarg("-c9 : set channel 39 value\n");
+    print_logmsgnofuncnoarg("-gi : get device id\n");
     print_logmsgnofuncnoarg("-o : disable report output\n");
     print_logmsgnofuncnoarg("-r : run receiver mode\n");
     print_logmsgnofuncnoarg("-b : run receiver in backgroung mode\n");
@@ -103,6 +104,7 @@ main(int argc, char *argv[])
     char *deviceCom = DEFAULT_DEVICE_COM;
     __u8  mode      = 0;
     __u8  rx        = 0;
+    __u8  get_device_id = 0;
     __u32 param_num;
     __u8  ignore_report = 0;
     print_dbgmsgnoarg("Enter\n");
@@ -150,6 +152,18 @@ main(int argc, char *argv[])
                 case 'e':
                 case 'E':
                     param_num = DEFAULT_EXT_PAYLOAD_NUM;
+                    break;
+                case 'g':
+                case 'G':
+                    switch (argv[i][2])
+                    {
+                        case 'I':
+                        case 'i':
+                            get_device_id = 1;
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 case 'c':
                 case 'C':
@@ -241,6 +255,11 @@ main(int argc, char *argv[])
                         }
                     }
                 }
+            }
+
+            if (get_device_id)
+            {
+                res = api_send_get_device_id(RE_CA_UART_GET_DEVICE_ID);
             }
 
             terminal_close();

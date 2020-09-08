@@ -33,6 +33,8 @@
 static int
 api_ack_callback(const uint8_t *const buffer);
 static int
+api_id_callback(const uint8_t *const buffer);
+static int
 api_report_callback(const uint8_t *const buffer);
 /*end*/
 
@@ -41,6 +43,7 @@ api_report_callback(const uint8_t *const buffer);
 api_callbacks_fn_t parser_callback_func_tbl = {
     .ApiAckCallback    = api_ack_callback,
     .ApiReportCallback = api_report_callback,
+    .ApiIdCallback = api_id_callback,
 };
 
 __u8 report_state = 0;
@@ -81,6 +84,30 @@ api_send_bool_payload(__u32 cmd, __u8 state)
 }
 
 __s8
+api_send_get_device_id(__u32 cmd)
+{
+    int8_t               res          = 0;
+    re_ca_uart_payload_t uart_payload = { 0 };
+    uint8_t              data[BUFFER_PAYLOAD_SIZE];
+    uint8_t              data_length;
+
+    print_dbgmsgnoarg("Enter\n");
+    uart_payload.cmd                     = (re_ca_uart_cmd_t)cmd;
+    data_length = sizeof(data);
+
+    if (RE_SUCCESS != re_ca_uart_encode(data, &data_length, &uart_payload))
+    {
+        res = (-1);
+    }
+    else
+    {
+        terminal_send_msg((uint8_t *)data, data_length);
+    }
+    print_dbgmsgnoarg("End\n");
+    return (__s8)res;
+}
+
+__s8
 api_send_fltr_id(__u32 cmd, __u16 id)
 {
     int8_t               res          = 0;
@@ -91,7 +118,6 @@ api_send_fltr_id(__u32 cmd, __u16 id)
     print_dbgmsgnoarg("Enter\n");
 
     uart_payload.cmd                     = (re_ca_uart_cmd_t)cmd;
-    uart_payload.params.fltr_id_param.id = id;
     data_length                          = sizeof(data);
 
     if (RE_SUCCESS != re_ca_uart_encode(data, &data_length, &uart_payload))
@@ -261,6 +287,43 @@ api_ack_callback(const __u8 *const buffer)
     }
     return res;
 }
+
+static int
+api_id_callback(const __u8 *const buffer)
+{
+    int                  res                   = -1;
+    re_ca_uart_payload_t uart_payload          = { 0 };
+
+    if (RE_SUCCESS == re_ca_uart_decode((uint8_t *)buffer, &uart_payload))
+    {
+        res = 0;
+#ifdef RUUVI_ESP
+#endif
+        print_logmsgnofuncnoarg("-----DEVICE_ID-----\n");
+        print_logmsgnofunc(
+            "ID: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+            (*((uint8_t*)&uart_payload.params.device_id.id)),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 1),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 2),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 3),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 4),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 5),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 6),
+            (*((uint8_t*)&uart_payload.params.device_id.id) + 7));
+        print_logmsgnofunc(
+            "ADDR: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+            (*((uint8_t*)&uart_payload.params.device_id.addr)),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 1),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 2),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 3),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 4),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 5),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 6),
+            (*((uint8_t*)&uart_payload.params.device_id.addr) + 7));
+    }
+    return res;
+}
+
 
 static int
 api_report_callback(const __u8 *const buffer)
