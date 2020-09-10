@@ -6,6 +6,7 @@
 #include <string.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /***USER_INCLUDES***/
 /*start*/
@@ -13,6 +14,7 @@
 #include "terminal.h"
 #include "api.h"
 #include "debug.h"
+#include "dbuscontroller.h"
 #include "ruuvi_endpoint_ca_uart.h"
 /*end*/
 
@@ -99,13 +101,14 @@ set_param(comm_tester_param_input_t *p_in, char *argv)
 int
 main(int argc, char *argv[])
 {
-    int   res       = 0;
-    __u32 i         = 0;
-    char *deviceCom = DEFAULT_DEVICE_COM;
-    __u8  mode      = 0;
-    __u8  rx        = 0;
+    int   res           = 0;
+    __u32 i             = 0;
+    char *deviceCom     = DEFAULT_DEVICE_COM;
+    __u8  mode          = 0;
+    __u8  rx            = 0;
     __u8  get_device_id = 0;
     __u32 param_num;
+    bool  dbus_create   = false;
     __u8  ignore_report = 0;
     print_dbgmsgnoarg("Enter\n");
 
@@ -127,7 +130,8 @@ main(int argc, char *argv[])
                     break;
                 case 'r':
                 case 'R':
-                    rx = 1;
+                    rx          = 1;
+                    dbus_create = true;
                     break;
                 case 'o':
                 case 'O':
@@ -197,77 +201,81 @@ main(int argc, char *argv[])
         i++;
     }
 
-    if (rx)
+    if (0 == dbus_connect(dbus_create))
     {
-        if (mode)
-        {
-            daemon(0, 1);
-        }
-        signal(SIGTERM, signalHandlerShutdown);
-        signal(SIGHUP, signalHandlerShutdown);
-        signal(SIGUSR1, signalHandlerShutdown);
-        signal(SIGQUIT, signalHandlerShutdown);
-        signal(SIGINT, signalHandlerShutdown);
-        signal(SIGKILL, signalHandlerShutdown);
 
-        if (terminal_open(deviceCom) == 0)
+        if (rx)
         {
-            res = api_process(ignore_report);
-            terminal_close();
-        }
-        else
-        {
-            print_errmsgnoarg("No device\n");
-            res = (-1);
-        }
-    }
-    else
-    {
-        if (terminal_open(deviceCom) == 0)
-        {
-
-            if (in.all_state >= MAX_PARAMS_NUM_SIZE)
+            if (mode)
             {
-                res = api_send_all(
-                    RE_CA_UART_SET_ALL,
-                    (__u16)in_array[DEFAULT_FLTR_ID_NUM]->payload,
-                    (__u8)in_array[DEFAULT_FLTR_TAGS_NUM]->payload,
-                    (__u8)in_array[DEFAULT_CODED_PHY_NUM]->payload,
-                    (__u8)in_array[DEFAULT_EXT_PAYLOAD_NUM]->payload,
-                    (__u8)in_array[DEFAULT_SCAN_PHY_NUM]->payload,
-                    (__u8)in_array[DEFAULT_CH_37_NUM]->payload,
-                    (__u8)in_array[DEFAULT_CH_38_NUM]->payload,
-                    (__u8)in_array[DEFAULT_CH_39_NUM]->payload);
+                daemon(0, 1);
+            }
+            signal(SIGTERM, signalHandlerShutdown);
+            signal(SIGHUP, signalHandlerShutdown);
+            signal(SIGUSR1, signalHandlerShutdown);
+            signal(SIGQUIT, signalHandlerShutdown);
+            signal(SIGINT, signalHandlerShutdown);
+            signal(SIGKILL, signalHandlerShutdown);
+
+            if (terminal_open(deviceCom, true) == 0)
+            {
+                res = api_process(ignore_report);
+                terminal_close();
             }
             else
             {
-                for (__u8 ii = 0; ii < (sizeof(in_array) / sizeof(in_array[0])); ii++)
-                {
-                    if (IS_PAYLOAD_SET(in_array[ii]))
-                    {
-                        if (cmd_array[ii] == RE_CA_UART_SET_FLTR_ID)
-                        {
-                            res = api_send_fltr_id(cmd_array[ii], (__u16)in_array[ii]->payload);
-                        }
-                        else
-                        {
-                            res = api_send_bool_payload(cmd_array[ii], (__u8)in_array[ii]->payload);
-                        }
-                    }
-                }
+                print_errmsgnoarg("No device\n");
+                res = (-1);
             }
-
-            if (get_device_id)
-            {
-                res = api_send_get_device_id(RE_CA_UART_GET_DEVICE_ID);
-            }
-
-            terminal_close();
         }
         else
         {
-            print_errmsgnoarg("No device\n");
-            res = (-1);
+            if (terminal_open(deviceCom, false) == 0)
+            {
+
+                if (in.all_state >= MAX_PARAMS_NUM_SIZE)
+                {
+                    res = api_send_all(
+                        RE_CA_UART_SET_ALL,
+                        (__u16)in_array[DEFAULT_FLTR_ID_NUM]->payload,
+                        (__u8)in_array[DEFAULT_FLTR_TAGS_NUM]->payload,
+                        (__u8)in_array[DEFAULT_CODED_PHY_NUM]->payload,
+                        (__u8)in_array[DEFAULT_EXT_PAYLOAD_NUM]->payload,
+                        (__u8)in_array[DEFAULT_SCAN_PHY_NUM]->payload,
+                        (__u8)in_array[DEFAULT_CH_37_NUM]->payload,
+                        (__u8)in_array[DEFAULT_CH_38_NUM]->payload,
+                        (__u8)in_array[DEFAULT_CH_39_NUM]->payload);
+                }
+                else
+                {
+                    for (__u8 ii = 0; ii < (sizeof(in_array) / sizeof(in_array[0])); ii++)
+                    {
+                        if (IS_PAYLOAD_SET(in_array[ii]))
+                        {
+                            if (cmd_array[ii] == RE_CA_UART_SET_FLTR_ID)
+                            {
+                                res = api_send_fltr_id(cmd_array[ii], (__u16)in_array[ii]->payload);
+                            }
+                            else
+                            {
+                                res = api_send_bool_payload(cmd_array[ii], (__u8)in_array[ii]->payload);
+                            }
+                        }
+                    }
+                }
+
+                if (get_device_id)
+                {
+                    res = api_send_get_device_id(RE_CA_UART_GET_DEVICE_ID);
+                }
+
+                terminal_close();
+            }
+            else
+            {
+                print_errmsgnoarg("No device\n");
+                res = (-1);
+            }
         }
     }
     print_dbgmsgnoarg("End\n");
