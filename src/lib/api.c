@@ -51,7 +51,7 @@ api_callbacks_fn_t parser_callback_func_tbl = {
 adv_callbacks_fn_t adv_callback_func_tbl_null = {
     .AdvAckCallback    = NULL,
     .AdvReportCallback = NULL,
-    .AdvReportCallback = NULL,
+    .AdvIdCallback = NULL,
 };
 
 adv_callbacks_fn_t *p_adv_callback_func_tbl = &adv_callback_func_tbl_null;

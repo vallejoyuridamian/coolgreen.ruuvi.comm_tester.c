@@ -12,9 +12,9 @@
 #define DBUS_WAIT_TIME 5.0f // seconds
 
 static void
-dbus_send_ack(const __u8 *const payload);
+dbus_send_ack(void *arg);
 static void
-dbus_send_device_id(const __u8 *const payload);
+dbus_send_device_id(void *arg);
 
 static DBusConnection *conn;
 
@@ -104,14 +104,14 @@ dbus_connect(bool new)
 }
 
 static void
-dbus_send_device_id(const __u8 *const payload)
+dbus_send_device_id(void *arg)
 {
     int                   err = 0;
     DBusMessage *         msg;
     DBusMessageIter       args;
     dbus_uint32_t         serial = 0;
     DBusMessageIter       iter_struct;
-    re_ca_uart_payload_t *u_payload = (re_ca_uart_payload_t *)payload;
+    re_ca_uart_payload_t *u_payload = (re_ca_uart_payload_t *)arg;
 
     print_dbgmsgnoarg("Enter\n");
 
@@ -180,14 +180,14 @@ dbus_send_device_id(const __u8 *const payload)
 }
 
 static void
-dbus_send_ack(const __u8 *const payload)
+dbus_send_ack(void *arg)
 {
     int                   err = 0;
     DBusMessage *         msg;
     DBusMessageIter       args;
     dbus_uint32_t         serial = 0;
     DBusMessageIter       iter_struct;
-    re_ca_uart_payload_t *u_payload = (re_ca_uart_payload_t *)payload;
+    re_ca_uart_payload_t *u_payload = (re_ca_uart_payload_t *)arg;
     uint8_t               bit_value = u_payload->params.ack.ack_state.state & 1U;
 
     print_dbgmsgnoarg("Enter\n");

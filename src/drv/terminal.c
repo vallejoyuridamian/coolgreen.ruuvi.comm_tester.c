@@ -79,7 +79,7 @@ send_msg(uint8_t *data, uint8_t size)
 #ifndef RUUVI_ESP
     if (size != write(terminal.fd, &data[0], size))
 #else
-    if (size != uart_write_bytes(UART_NUM_1,&data[0], size)
+    if (size != uart_write_bytes(UART_NUM_1,(char*)&data[0], size))
 #endif
     {
         print_errmsgnoarg("Write size incorrect\n");

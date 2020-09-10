@@ -90,7 +90,7 @@ formated_output_report(void *p_uart_payload)
         print_logmsgnofunc("%02x ", uart_payload->params.adv.adv[i]);
     }
 #else
-    print_logmsghexdump((char *)&uart_payload->params.adv.adv[0], uart_payload.params.adv.adv_len);
+    print_logmsghexdump((char *)&uart_payload->params.adv.adv[0], uart_payload->params.adv.adv_len);
 #endif
     print_logmsgnofuncnoarg("\n");
     print_logmsgnofunc("RSSI: %d db\n", uart_payload->params.adv.rssi_db);
