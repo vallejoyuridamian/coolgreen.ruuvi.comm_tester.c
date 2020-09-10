@@ -36,6 +36,10 @@ api_send_all(
     __u8  ch_37_state,
     __u8  ch_38_state,
     __u8  ch_39_state);
+int
+api_callbacks_reg(void *p_callback);
+int
+api_callbacks_unreg();
 /*end*/
 
 #endif /* API_H_ */

@@ -15,11 +15,28 @@
 #include "ruuvi_gateway.h"
 #endif
 
+// DBus comm_tester settings
+#define COMM_TESTER_DBUS_SERVICE   "com.ruuvi.comm.tester.c"
+#define COMM_TESTER_DBUS_OBJECT    "/com/ruuvi/comm/tester/c"
+#define COMM_TESTER_DBUS_INTERFACE COMM_TESTER_DBUS_SERVICE
+
+// DBus signals
+#define COMM_TESTER_DBUS_SEND_DEVICE_ID "sendDeviceId"
+#define COMM_TESTER_DBUS_SEND_ACK       "sendAck"
+#define COMM_TESTER_DBUS_SEND_REPORT    "sendReport"
+
 typedef struct __api_callbacks_fn_t
 {
     int (*ApiAckCallback)(const __u8 *const buffer);
     int (*ApiReportCallback)(const __u8 *const buffer);
     int (*ApiIdCallback)(const __u8 *const buffer);
 } api_callbacks_fn_t;
+
+typedef struct __adv_callbacks_fn_t
+{
+    void (*AdvAckCallback)(const __u8 *const buffer);
+    void (*AdvReportCallback)(const __u8 *const buffer);
+    void (*AdvIdCallback)(const __u8 *const buffer);
+} adv_callbacks_fn_t;
 
 #endif /* TYPES_DEF_H_ */
