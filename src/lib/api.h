@@ -20,6 +20,8 @@
 __s8
 api_process(__u8 state);
 __s8
+api_send_get_device_id(__u32 cmd);
+__s8
 api_send_fltr_id(__u32 cmd, __u16 id);
 __s8
 api_send_bool_payload(__u32 cmd, __u8 state);
@@ -34,6 +36,10 @@ api_send_all(
     __u8  ch_37_state,
     __u8  ch_38_state,
     __u8  ch_39_state);
+int
+api_callbacks_reg(void *p_callback);
+int
+api_callbacks_unreg();
 /*end*/
 
 #endif /* API_H_ */

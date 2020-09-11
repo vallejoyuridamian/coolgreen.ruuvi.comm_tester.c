@@ -8,6 +8,8 @@ idf_component_register(
             src/drv/terminal.c
             src/lib/api.c
             src/lib/parser.c
+	    src/lib/dbuscontroller.c
+	    src/lib/formated_output.c
         INCLUDE_DIRS
             src
             src/drv
@@ -36,10 +38,15 @@ set(COMPONENTS components)
 set(RUUVI_LIB_SOURCES
         src/lib/api.c
         src/lib/parser.c
+	src/lib/dbuscontroller.c
+	src/lib/formated_output.c
         ${COMPONENTS}/ruuvi.endpoints.c/src/ruuvi_endpoint_ca_uart.c
 )
 
 include_directories(
+	/usr/include 
+	/usr/include/dbus-1.0 
+	/usr/lib/x86_64-linux-gnu/dbus-1.0/include 
         src
         src/app
         src/lib
@@ -73,6 +80,7 @@ target_compile_options(${ProjectId} PUBLIC
 
 target_link_libraries(${ProjectId}
         pthread
+	dbus-1
 )
 
 endif()

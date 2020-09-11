@@ -13,6 +13,8 @@
 #include "terminal.h"
 #include "parser.h"
 #include "time.h"
+#include "formated_output.h"
+#include "dbuscontroller.h"
 #include "ruuvi_endpoint_ca_uart.h"
 #ifdef RUUVI_ESP
 #include "adv_post.h"
@@ -33,6 +35,8 @@
 static int
 api_ack_callback(const uint8_t *const buffer);
 static int
+api_id_callback(const uint8_t *const buffer);
+static int
 api_report_callback(const uint8_t *const buffer);
 /*end*/
 
@@ -41,7 +45,16 @@ api_report_callback(const uint8_t *const buffer);
 api_callbacks_fn_t parser_callback_func_tbl = {
     .ApiAckCallback    = api_ack_callback,
     .ApiReportCallback = api_report_callback,
+    .ApiIdCallback     = api_id_callback,
 };
+
+adv_callbacks_fn_t adv_callback_func_tbl_null = {
+    .AdvAckCallback    = NULL,
+    .AdvReportCallback = NULL,
+    .AdvIdCallback = NULL,
+};
+
+adv_callbacks_fn_t *p_adv_callback_func_tbl = &adv_callback_func_tbl_null;
 
 __u8 report_state = 0;
 
@@ -75,6 +88,36 @@ api_send_bool_payload(__u32 cmd, __u8 state)
     else
     {
         terminal_send_msg((uint8_t *)data, data_length);
+#ifndef RUUVI_ESP
+        dbus_check_new_messages();
+#endif
+    }
+    print_dbgmsgnoarg("End\n");
+    return (__s8)res;
+}
+
+__s8
+api_send_get_device_id(__u32 cmd)
+{
+    int8_t               res          = 0;
+    re_ca_uart_payload_t uart_payload = { 0 };
+    uint8_t              data[BUFFER_PAYLOAD_SIZE];
+    uint8_t              data_length;
+
+    print_dbgmsgnoarg("Enter\n");
+    uart_payload.cmd = (re_ca_uart_cmd_t)cmd;
+    data_length      = sizeof(data);
+
+    if (RE_SUCCESS != re_ca_uart_encode(data, &data_length, &uart_payload))
+    {
+        res = (-1);
+    }
+    else
+    {
+        terminal_send_msg((uint8_t *)data, data_length);
+#ifndef RUUVI_ESP
+        dbus_check_new_messages();
+#endif
     }
     print_dbgmsgnoarg("End\n");
     return (__s8)res;
@@ -90,9 +133,8 @@ api_send_fltr_id(__u32 cmd, __u16 id)
 
     print_dbgmsgnoarg("Enter\n");
 
-    uart_payload.cmd                     = (re_ca_uart_cmd_t)cmd;
-    uart_payload.params.fltr_id_param.id = id;
-    data_length                          = sizeof(data);
+    uart_payload.cmd = (re_ca_uart_cmd_t)cmd;
+    data_length      = sizeof(data);
 
     if (RE_SUCCESS != re_ca_uart_encode(data, &data_length, &uart_payload))
     {
@@ -101,6 +143,9 @@ api_send_fltr_id(__u32 cmd, __u16 id)
     else
     {
         terminal_send_msg((uint8_t *)data, data_length);
+#ifndef RUUVI_ESP
+        dbus_check_new_messages();
+#endif
     }
     print_dbgmsgnoarg("End\n");
     return (__s8)res;
@@ -200,6 +245,9 @@ api_send_all(
     else
     {
         terminal_send_msg((uint8_t *)data, data_length);
+#ifndef RUUVI_ESP
+        dbus_check_new_messages();
+#endif
     }
     print_dbgmsgnoarg("End\n");
     return (__s8)res;
@@ -210,54 +258,35 @@ api_send_all(
 static int
 api_ack_callback(const __u8 *const buffer)
 {
-    int                  res                   = -1;
-    re_ca_uart_payload_t uart_payload          = { 0 };
-    char                 ack_state_name[2][32] = {
-        "RE_CA_ACK_OK",
-        "RE_CA_ACK_ERROR",
-    };
-    char ack_cmd_name[33][32] = {
-        "RE_CA_UART_NOT_CODED",
-        "RE_CA_UART_SET_FLTR",
-        "RE_CA_UART_CLR_FLTR",
-        "RE_CA_UART_SET_CH",
-        "RE_CA_UART_SET_PHY",
-        "RE_CA_UART_SET_FLTR_TAGS",
-        "RE_CA_UART_SET_FLTR_ID",
-        "RE_CA_UART_SET_CODED_PHY",
-        "RE_CA_UART_SET_SCAN_1MB_PHY",
-        "RE_CA_UART_SET_EXT_PAYLOAD",
-        "RE_CA_UART_SET_CH_37",
-        "RE_CA_UART_SET_CH_38",
-        "RE_CA_UART_SET_CH_39",
-        "",
-        "",
-        "RE_CA_UART_SET_ALL",
-        "RE_CA_UART_ADV_RPRT",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "RE_CA_UART_ACK",
-    };
+    int                  res          = -1;
+    re_ca_uart_payload_t uart_payload = { 0 };
 
     if (RE_SUCCESS == re_ca_uart_decode((uint8_t *)buffer, &uart_payload))
     {
         res = 0;
-        print_logmsgnofuncnoarg("-----ACK-----\n");
-        print_logmsgnofunc("CMD: %s\n", ack_cmd_name[(uint8_t)uart_payload.params.ack.cmd]);
-        print_logmsgnofunc("ACK state: %s\n", ack_state_name[(uint8_t)uart_payload.params.ack.ack_state.state]);
+        if (NULL != p_adv_callback_func_tbl->AdvAckCallback)
+        {
+            p_adv_callback_func_tbl->AdvAckCallback((void *)&uart_payload);
+        }
+        formated_output_ack((void *)&uart_payload);
+    }
+    return res;
+}
+
+static int
+api_id_callback(const __u8 *const buffer)
+{
+    int                  res          = -1;
+    re_ca_uart_payload_t uart_payload = { 0 };
+
+    if (RE_SUCCESS == re_ca_uart_decode((uint8_t *)buffer, &uart_payload))
+    {
+        res = 0;
+        if (NULL != p_adv_callback_func_tbl->AdvIdCallback)
+        {
+            p_adv_callback_func_tbl->AdvIdCallback((void *)&uart_payload);
+        }
+        formated_output_device_id((void *)&uart_payload);
     }
     return res;
 }
@@ -270,32 +299,13 @@ api_report_callback(const __u8 *const buffer)
     if (RE_SUCCESS == re_ca_uart_decode((uint8_t *)buffer, &uart_payload))
     {
         res = 0;
-#ifdef RUUVI_ESP
-        adv_post_send((void *)&uart_payload);
-#endif
+        if (NULL != p_adv_callback_func_tbl->AdvReportCallback)
+        {
+            p_adv_callback_func_tbl->AdvReportCallback((void *)&uart_payload);
+        }
         if (!report_state)
         {
-            print_logmsgnofuncnoarg("-----REPORT-----\n");
-            print_logmsgnofunc(
-                "MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-                uart_payload.params.adv.mac[0],
-                uart_payload.params.adv.mac[1],
-                uart_payload.params.adv.mac[2],
-                uart_payload.params.adv.mac[3],
-                uart_payload.params.adv.mac[4],
-                uart_payload.params.adv.mac[5]);
-
-            print_logmsgnofuncnoarg("ADV: ");
-#ifndef RUUVI_ESP
-            for (int i = 0; i < uart_payload.params.adv.adv_len; i++)
-            {
-                print_logmsgnofunc("%02x ", uart_payload.params.adv.adv[i]);
-            }
-#else
-            print_logmsghexdump((char *)&uart_payload.params.adv.adv[0], uart_payload.params.adv.adv_len);
-#endif
-            print_logmsgnofuncnoarg("\n");
-            print_logmsgnofunc("RSSI: %d db\n", uart_payload.params.adv.rssi_db);
+            formated_output_report((void *)&uart_payload);
         }
     }
     return res;
@@ -315,6 +325,33 @@ api_process(__u8 state)
     }
     parse_callbacks_unreg();
 #endif
+    print_dbgmsgnoarg("End\n");
+    return 0;
+}
+
+int
+api_callbacks_reg(void *p_callback)
+{
+    int res = 0;
+    print_dbgmsgnoarg("Enter\n");
+    if ((adv_callbacks_fn_t *)p_callback != NULL)
+    {
+        p_adv_callback_func_tbl = (adv_callbacks_fn_t *)p_callback;
+    }
+    else
+    {
+        print_errmsgnofuncnoarg("Nullptr\n");
+        res = (-1);
+    }
+    print_dbgmsgnoarg("End\n");
+    return res;
+}
+
+int
+api_callbacks_unreg()
+{
+    print_dbgmsgnoarg("Enter\n");
+    p_adv_callback_func_tbl = &adv_callback_func_tbl_null;
     print_dbgmsgnoarg("End\n");
     return 0;
 }

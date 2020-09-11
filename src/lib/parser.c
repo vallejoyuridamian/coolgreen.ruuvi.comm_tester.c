@@ -18,6 +18,7 @@
 api_callbacks_fn_t parser_callback_func_tbl_null = {
     .ApiAckCallback    = NULL,
     .ApiReportCallback = NULL,
+    .ApiIdCallback     = NULL,
 };
 
 api_callbacks_fn_t *p_parser_callback_func_tbl = &parser_callback_func_tbl_null;
@@ -60,10 +61,22 @@ parse(__u8 *buffer)
     switch (buffer[RE_CA_UART_CMD_INDEX])
     {
         case RE_CA_UART_ACK:
-            res = p_parser_callback_func_tbl->ApiAckCallback(buffer);
+            if (NULL != p_parser_callback_func_tbl->ApiAckCallback)
+            {
+                res = p_parser_callback_func_tbl->ApiAckCallback(buffer);
+            }
             break;
         case RE_CA_UART_ADV_RPRT:
-            res = p_parser_callback_func_tbl->ApiReportCallback(buffer);
+            if (NULL != p_parser_callback_func_tbl->ApiAckCallback)
+            {
+                res = p_parser_callback_func_tbl->ApiReportCallback(buffer);
+            }
+            break;
+        case RE_CA_UART_DEVICE_ID:
+            if (NULL != p_parser_callback_func_tbl->ApiAckCallback)
+            {
+                res = p_parser_callback_func_tbl->ApiIdCallback(buffer);
+            }
             break;
         default:
             break;

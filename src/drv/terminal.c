@@ -65,6 +65,7 @@ send_msg(uint8_t *data, uint8_t size);
 static int
 send_msg(uint8_t *data, uint8_t size)
 {
+    int res = 0;
     print_dbgmsgnofuncnoarg("TX: ");
 #ifndef RUUVI_ESP
     for (int i = 0; i < size; i++)
@@ -76,11 +77,16 @@ send_msg(uint8_t *data, uint8_t size)
 #endif
     print_dbgmsgnofuncnoarg("\n");
 #ifndef RUUVI_ESP
-    write(terminal.fd, &data[0], size);
+    if (size != write(terminal.fd, &data[0], size))
 #else
-
+    if (size != uart_write_bytes(UART_NUM_1,(char*)&data[0], size))
 #endif
-    return 0;
+    {
+        print_errmsgnoarg("Write size incorrect\n");
+        res = (-1);
+    }
+
+    return res;
 }
 
 static int
@@ -213,7 +219,7 @@ rx_task(void *arg)
 }
 
 int
-terminal_open(char *device_address)
+terminal_open(char *device_address, bool rx_enable)
 {
 
     print_dbgmsgnoarg("Enter\n");
@@ -226,30 +232,33 @@ terminal_open(char *device_address)
     }
     else
     {
-        struct termios settings;
-        speed_t        baud = DEFAULT_BAUDRATE;
-        tcgetattr(terminal.fd, &settings);
-        cfsetospeed(&settings, baud); /* baud rate */
-        settings.c_cflag &= ~PARENB;  /* no parity */
-        settings.c_cflag &= ~CSTOPB;  /* 1 stop bit */
-        settings.c_cflag &= ~CSIZE;
-        settings.c_cflag |= CS8 | CLOCAL; /* 8 bits */
-        settings.c_lflag = ICANON;        /* canonical mode */
-        settings.c_oflag &= ~OPOST;       /* raw output */
+        if (true == rx_enable)
+        {
+            struct termios settings;
+            speed_t        baud = DEFAULT_BAUDRATE;
+            tcgetattr(terminal.fd, &settings);
+            cfsetospeed(&settings, baud); /* baud rate */
+            settings.c_cflag &= ~PARENB;  /* no parity */
+            settings.c_cflag &= ~CSTOPB;  /* 1 stop bit */
+            settings.c_cflag &= ~CSIZE;
+            settings.c_cflag |= CS8 | CLOCAL; /* 8 bits */
+            settings.c_lflag = ICANON;        /* canonical mode */
+            settings.c_oflag &= ~OPOST;       /* raw output */
 
-        settings.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
-        settings.c_oflag &= ~OPOST;
-        settings.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-        settings.c_cflag &= ~(CSIZE | PARENB);
-        settings.c_cflag |= CS8;
+            settings.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+            settings.c_oflag &= ~OPOST;
+            settings.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+            settings.c_cflag &= ~(CSIZE | PARENB);
+            settings.c_cflag |= CS8;
 
-        terminal.size                  = 0;
-        terminal.rx_buffer_error_index = 0;
-        tcsetattr(terminal.fd, TCSANOW, &settings); /* apply the settings */
-        tcflush(terminal.fd, TCOFLUSH);
+            terminal.size                  = 0;
+            terminal.rx_buffer_error_index = 0;
+            tcsetattr(terminal.fd, TCSANOW, &settings); /* apply the settings */
+            tcflush(terminal.fd, TCOFLUSH);
 
-        pthread_create(&terminal.thread_id, NULL, th_ctrl, NULL);
-        pthread_create(&terminal.thread_id_call, NULL, th_ctrl_call, NULL);
+            pthread_create(&terminal.thread_id, NULL, th_ctrl, NULL);
+            pthread_create(&terminal.thread_id_call, NULL, th_ctrl_call, NULL);
+        }
     }
 #else
     terminal.rx_parse_task_manager = NULL;

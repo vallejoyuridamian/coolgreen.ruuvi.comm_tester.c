@@ -10,6 +10,7 @@
 #define TERMINAL_H_
 #ifndef RUUVI_ESP
 #include <linux/types.h>
+#include <stdbool.h>
 #else
 #include "ruuvi_gateway.h"
 #endif
@@ -35,7 +36,7 @@
 /**USER FUNCTIONS***/
 /*start*/
 int
-terminal_open(char *device_address);
+terminal_open(char *device_address, bool rx_enable);
 int
 terminal_close(void);
 int

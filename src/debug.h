@@ -59,7 +59,7 @@
 #define print_logmsgnofunc(str, args...)    ESP_LOGI("terminal_log", str, ##args)
 #define print_logmsgnofuncnoarg(str)        ESP_LOGI("terminal_log", str)
 #define print_logmsghexdump(data, numBytes) ESP_LOG_BUFFER_HEXDUMP("terminal_log", data, numBytes, ESP_LOG_INFO);
-#define print_errmsg(str, args...) \efine print_errmsg(str, args...) ESP_LOGE("terminal_err", str, __func__, ##args)
+#define print_errmsg(str, args...)          ESP_LOGE("terminal_err", str, __func__, ##args)
 #define print_errmsgnoarg(str)              ESP_LOGE("terminal_err", "%s in %s: ", str, __func__)
 #define print_errmsgnofunc(str, args...)    ESP_LOGE("terminal_err", str, ##args)
 #define print_errmsgnofuncnoarg(str)        ESP_LOGE("terminal_err", str)
