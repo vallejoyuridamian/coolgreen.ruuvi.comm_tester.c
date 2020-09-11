@@ -104,21 +104,21 @@ formated_output_device_id(void *p_uart_payload)
     print_logmsgnofunc(
         "ID: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
         (*((uint8_t *)&uart_payload->params.device_id.id)),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 1),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 2),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 3),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 4),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 5),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 6),
-        (*((uint8_t *)&uart_payload->params.device_id.id) + 7));
+        (*((uint8_t *)&uart_payload->params.device_id.id + 1)),
+        (*((uint8_t *)&uart_payload->params.device_id.id + 2)),
+        (*((uint8_t *)&uart_payload->params.device_id.id + 3)),
+        (*((uint8_t *)&uart_payload->params.device_id.id + 4)),
+        (*((uint8_t *)&uart_payload->params.device_id.id + 5)),
+        (*((uint8_t *)&uart_payload->params.device_id.id + 6)),
+        (*((uint8_t *)&uart_payload->params.device_id.id + 7)));
     print_logmsgnofunc(
         "ADDR: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
         (*((uint8_t *)&uart_payload->params.device_id.addr)),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 1),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 2),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 3),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 4),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 5),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 6),
-        (*((uint8_t *)&uart_payload->params.device_id.addr) + 7));
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 1)),
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 2)),
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 3)),
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 4)),
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 5)),
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 6)),
+        (*((uint8_t *)&uart_payload->params.device_id.addr + 7)));
 }
