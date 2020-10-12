@@ -63,8 +63,8 @@ signalHandlerShutdown(int sig)
 
 typedef struct
 {
-    __u32 payload;
-    __u8  is_set;
+    uint32_t payload;
+    uint8_t  is_set;
 } comm_tester_param_input_t;
 
 typedef struct
@@ -77,7 +77,7 @@ typedef struct
     comm_tester_param_input_t ch_37_state;
     comm_tester_param_input_t ch_38_state;
     comm_tester_param_input_t ch_39_state;
-    __u32                     all_state;
+    uint32_t                     all_state;
 } comm_tester_input_t;
 
 comm_tester_input_t        in;
@@ -86,7 +86,7 @@ comm_tester_param_input_t *in_array[] = {
     &in.scan_phy_state, &in.ch_37_state,     &in.ch_38_state,     &in.ch_39_state,
 };
 
-__u32 cmd_array[] = {
+uint32_t cmd_array[] = {
     RE_CA_UART_SET_FLTR_ID,      RE_CA_UART_SET_FLTR_TAGS, RE_CA_UART_SET_CODED_PHY, RE_CA_UART_SET_EXT_PAYLOAD,
     RE_CA_UART_SET_SCAN_1MB_PHY, RE_CA_UART_SET_CH_37,     RE_CA_UART_SET_CH_38,     RE_CA_UART_SET_CH_39,
 };
@@ -102,14 +102,14 @@ int
 main(int argc, char *argv[])
 {
     int   res           = 0;
-    __u32 i             = 0;
+    uint32_t i             = 0;
     char *deviceCom     = DEFAULT_DEVICE_COM;
-    __u8  mode          = 0;
-    __u8  rx            = 0;
-    __u8  get_device_id = 0;
-    __u32 param_num;
+    uint8_t  mode          = 0;
+    uint8_t  rx            = 0;
+    uint8_t  get_device_id = 0;
+    uint32_t param_num;
     bool  dbus_create   = false;
-    __u8  ignore_report = 0;
+    uint8_t  ignore_report = 0;
     print_dbgmsgnoarg("Enter\n");
 
     while (i < argc)
@@ -237,28 +237,28 @@ main(int argc, char *argv[])
                 {
                     res = api_send_all(
                         RE_CA_UART_SET_ALL,
-                        (__u16)in_array[DEFAULT_FLTR_ID_NUM]->payload,
-                        (__u8)in_array[DEFAULT_FLTR_TAGS_NUM]->payload,
-                        (__u8)in_array[DEFAULT_CODED_PHY_NUM]->payload,
-                        (__u8)in_array[DEFAULT_EXT_PAYLOAD_NUM]->payload,
-                        (__u8)in_array[DEFAULT_SCAN_PHY_NUM]->payload,
-                        (__u8)in_array[DEFAULT_CH_37_NUM]->payload,
-                        (__u8)in_array[DEFAULT_CH_38_NUM]->payload,
-                        (__u8)in_array[DEFAULT_CH_39_NUM]->payload);
+                        (uint16_t)in_array[DEFAULT_FLTR_ID_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_FLTR_TAGS_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_CODED_PHY_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_EXT_PAYLOAD_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_SCAN_PHY_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_CH_37_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_CH_38_NUM]->payload,
+                        (uint8_t)in_array[DEFAULT_CH_39_NUM]->payload);
                 }
                 else
                 {
-                    for (__u8 ii = 0; ii < (sizeof(in_array) / sizeof(in_array[0])); ii++)
+                    for (uint8_t ii = 0; ii < (sizeof(in_array) / sizeof(in_array[0])); ii++)
                     {
                         if (IS_PAYLOAD_SET(in_array[ii]))
                         {
                             if (cmd_array[ii] == RE_CA_UART_SET_FLTR_ID)
                             {
-                                res = api_send_fltr_id(cmd_array[ii], (__u16)in_array[ii]->payload);
+                                res = api_send_fltr_id(cmd_array[ii], (uint16_t)in_array[ii]->payload);
                             }
                             else
                             {
-                                res = api_send_bool_payload(cmd_array[ii], (__u8)in_array[ii]->payload);
+                                res = api_send_bool_payload(cmd_array[ii], (uint8_t)in_array[ii]->payload);
                             }
                         }
                     }

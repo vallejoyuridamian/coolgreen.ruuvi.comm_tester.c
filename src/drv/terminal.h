@@ -40,7 +40,7 @@ terminal_open(char *device_address, bool rx_enable);
 int
 terminal_close(void);
 int
-terminal_send_msg(__u8 *data, __u8 size);
+terminal_send_msg(uint8_t *data, uint8_t size);
 /*end*/
 
 #endif /* TERMINAL_H_ */

@@ -11,6 +11,7 @@
 
 #ifndef RUUVI_ESP
 #include <linux/types.h>
+#include <stdint.h>
 #else
 #include "ruuvi_gateway.h"
 #endif
@@ -27,9 +28,9 @@
 
 typedef struct __api_callbacks_fn_t
 {
-    int (*ApiAckCallback)(const __u8 *const buffer);
-    int (*ApiReportCallback)(const __u8 *const buffer);
-    int (*ApiIdCallback)(const __u8 *const buffer);
+    int (*ApiAckCallback)(const uint8_t *const buffer);
+    int (*ApiReportCallback)(const uint8_t *const buffer);
+    int (*ApiIdCallback)(const uint8_t *const buffer);
 } api_callbacks_fn_t;
 
 typedef struct __adv_callbacks_fn_t

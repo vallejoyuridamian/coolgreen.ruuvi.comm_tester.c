@@ -251,7 +251,7 @@ dbus_send_ack(void *arg)
 }
 
 static void
-handle_ack(DBusMessage *msg, __u8 *payload)
+handle_ack(DBusMessage *msg, uint8_t *payload)
 {
     int                   err = 0;
     DBusMessageIter       args;
@@ -328,7 +328,7 @@ handle_ack(DBusMessage *msg, __u8 *payload)
 }
 
 static void
-handle_device_id(DBusMessage *msg, __u8 *payload)
+handle_device_id(DBusMessage *msg, uint8_t *payload)
 {
     int                   err = 0;
     DBusMessageIter       args;
@@ -419,13 +419,13 @@ dbus_check_new_messages(void)
         {
             if (dbus_message_is_signal(msg, COMM_TESTER_DBUS_INTERFACE, COMM_TESTER_DBUS_SEND_ACK))
             {
-                handle_ack(msg, (__u8 *)&uart_payload);
+                handle_ack(msg, (uint8_t *)&uart_payload);
                 formated_output_ack((void *)&uart_payload);
                 break;
             }
             else if (dbus_message_is_signal(msg, COMM_TESTER_DBUS_INTERFACE, COMM_TESTER_DBUS_SEND_DEVICE_ID))
             {
-                handle_device_id(msg, (__u8 *)&uart_payload);
+                handle_device_id(msg, (uint8_t *)&uart_payload);
                 formated_output_device_id((void *)&uart_payload);
                 break;
             }

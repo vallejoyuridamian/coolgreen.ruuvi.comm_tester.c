@@ -11,31 +11,32 @@
 
 #ifndef RUUVI_ESP
 #include <linux/types.h>
+#include <stdint.h>
 #else
 #include "ruuvi_gateway.h"
 #endif
 
 /***USER_FUNCTIONS**/
 /*start*/
-__s8
-api_process(__u8 state);
-__s8
-api_send_get_device_id(__u32 cmd);
-__s8
-api_send_fltr_id(__u32 cmd, __u16 id);
-__s8
-api_send_bool_payload(__u32 cmd, __u8 state);
-__s8
+int8_t
+api_process(uint8_t state);
+int8_t
+api_send_get_device_id(uint32_t cmd);
+int8_t
+api_send_fltr_id(uint32_t cmd, uint16_t id);
+int8_t
+api_send_bool_payload(uint32_t cmd, uint8_t state);
+int8_t
 api_send_all(
-    __u32 cmd,
-    __u16 fltr_id,
-    __u8  fltr_tags_state,
-    __u8  coded_phy_state,
-    __u8  ext_payload_state,
-    __u8  scan_phy_state,
-    __u8  ch_37_state,
-    __u8  ch_38_state,
-    __u8  ch_39_state);
+    uint32_t cmd,
+    uint16_t fltr_id,
+    uint8_t  fltr_tags_state,
+    uint8_t  coded_phy_state,
+    uint8_t  ext_payload_state,
+    uint8_t  scan_phy_state,
+    uint8_t  ch_37_state,
+    uint8_t  ch_38_state,
+    uint8_t  ch_39_state);
 int
 api_callbacks_reg(void *p_callback);
 int
