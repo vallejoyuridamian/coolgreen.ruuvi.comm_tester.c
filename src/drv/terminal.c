@@ -57,8 +57,8 @@ typedef struct __terminal_struct
 terminal_struct_t terminal;
 /*end*/
 
-static int
-wait(uint8_t *data, uint32_t timeout);
+static void
+wait(terminal_struct_t *p_terminal, uint32_t timeout);
 static int
 send_msg(uint8_t *data, uint8_t size);
 
@@ -89,46 +89,47 @@ send_msg(uint8_t *data, uint8_t size)
     return res;
 }
 
-static int
-wait(uint8_t *data_p, uint32_t timeout)
+static void
+wait(terminal_struct_t *p_terminal, uint32_t timeout)
 {
     int     rx_size = 0;
     int     rx_size_it;
-    uint8_t data[RX_BUFFER_MAX_SIZE];
-    memset(data, 0, RX_BUFFER_MAX_SIZE);
-    while (terminal.size != 0)
+    static uint8_t rcv_data[RX_BUFFER_MAX_SIZE];
+    memset(rcv_data, 0, RX_BUFFER_MAX_SIZE);
+    while (p_terminal->size != 0)
         ;
     while (1)
     {
 #ifndef RUUVI_ESP
-        rx_size_it = read(terminal.fd, &data[rx_size], 1);
+        rx_size_it = read(p_terminal->fd, &rcv_data[rx_size], 1);
 #else
-        rx_size_it = uart_read_bytes(UART_NUM_1, &data[rx_size], 1, timeout / portTICK_RATE_MS);
+        rx_size_it = uart_read_bytes(UART_NUM_1, &rcv_data[rx_size], 1, timeout / portTICK_RATE_MS);
 #endif
 
-        if (rx_size_it <= 0)
+        if ((rx_size + rx_size_it) > RX_BUFFER_MAX_SIZE)
         {
+            break;
         }
-        else
+
+        if (rx_size_it > 0)
         {
             rx_size += rx_size_it;
-            for (int i = 0; i < rx_size; i++)
+            for (int i = (rx_size - rx_size_it); i < rx_size; i++)
             {
-                if ((*(uint8_t *)&data[i]) == RE_CA_UART_ETX)
+                if ((*(uint8_t *)&rcv_data[i]) == RE_CA_UART_ETX)
                 {
-                    memcpy(data_p, data, rx_size);
-                    terminal.size = rx_size;
-                    rx_size       = 0;
+                    memcpy(p_terminal->rx_buffer, rcv_data, rx_size);
+                    p_terminal->size = rx_size;
                     break;
                 }
             }
-            if (terminal.size)
+
+            if (p_terminal->size)
             {
                 break;
             }
         }
     }
-    return rx_size;
 }
 
 int
@@ -209,7 +210,7 @@ rx_task(void *arg)
 #endif
     while (1)
     {
-        wait(terminal.rx_buffer, RX_ASK_TIMEOUT);
+        wait(&terminal, RX_ASK_TIMEOUT);
 #ifndef RUUVI_ESP
         // usleep(100000);
 #else
