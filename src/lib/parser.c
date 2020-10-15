@@ -55,7 +55,7 @@ parse_callbacks_reg(void *p_callback)
 }
 
 int
-parse(__u8 *buffer)
+parse(uint8_t *buffer)
 {
     int res = -1;
     switch (buffer[RE_CA_UART_CMD_INDEX])

@@ -133,7 +133,7 @@ wait(terminal_struct_t *p_terminal, uint32_t timeout)
 }
 
 int
-terminal_send_msg(__u8 *data, __u8 size)
+terminal_send_msg(uint8_t *data, uint8_t size)
 {
     int res = 0;
     print_dbgmsgnoarg("Enter\n");
@@ -173,11 +173,11 @@ rx_parse_task(void *arg)
 #endif
 
             print_dbgmsgnofuncnoarg("\n");
-            if ((-1) == parse((__u8 *)&terminal.rx_buffer[0]))
+            if ((-1) == parse((uint8_t *)&terminal.rx_buffer[0]))
             {
                 memcpy((terminal.rx_buffer_error + terminal.rx_buffer_error_index), terminal.rx_buffer, terminal.size);
                 terminal.rx_buffer_error_index += terminal.size;
-                if (0 == parse((__u8 *)&terminal.rx_buffer_error[0]))
+                if (0 == parse((uint8_t *)&terminal.rx_buffer_error[0]))
                 {
                     memset(terminal.rx_buffer_error, 0, RX_BUFFER_MAX_SIZE << 1);
                     terminal.rx_buffer_error_index = 0;

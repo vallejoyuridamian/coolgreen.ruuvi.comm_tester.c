@@ -56,12 +56,12 @@ adv_callbacks_fn_t adv_callback_func_tbl_null = {
 
 adv_callbacks_fn_t *p_adv_callback_func_tbl = &adv_callback_func_tbl_null;
 
-__u8 report_state = 0;
+uint8_t report_state = 0;
 
 /*end*/
 
-__s8
-api_send_bool_payload(__u32 cmd, __u8 state)
+int8_t
+api_send_bool_payload(uint32_t cmd, uint8_t state)
 {
     int8_t               res          = 0;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -93,11 +93,11 @@ api_send_bool_payload(__u32 cmd, __u8 state)
 #endif
     }
     print_dbgmsgnoarg("End\n");
-    return (__s8)res;
+    return (int8_t)res;
 }
 
-__s8
-api_send_get_device_id(__u32 cmd)
+int8_t
+api_send_get_device_id(uint32_t cmd)
 {
     int8_t               res          = 0;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -120,11 +120,11 @@ api_send_get_device_id(__u32 cmd)
 #endif
     }
     print_dbgmsgnoarg("End\n");
-    return (__s8)res;
+    return (int8_t)res;
 }
 
-__s8
-api_send_fltr_id(__u32 cmd, __u16 id)
+int8_t
+api_send_fltr_id(uint32_t cmd, uint16_t id)
 {
     int8_t               res          = 0;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -148,20 +148,20 @@ api_send_fltr_id(__u32 cmd, __u16 id)
 #endif
     }
     print_dbgmsgnoarg("End\n");
-    return (__s8)res;
+    return (int8_t)res;
 }
 
-__s8
+int8_t
 api_send_all(
-    __u32 cmd,
-    __u16 fltr_id,
-    __u8  fltr_tags_state,
-    __u8  coded_phy_state,
-    __u8  ext_payload_state,
-    __u8  scan_phy_state,
-    __u8  ch_37_state,
-    __u8  ch_38_state,
-    __u8  ch_39_state)
+    uint32_t cmd,
+    uint16_t fltr_id,
+    uint8_t  fltr_tags_state,
+    uint8_t  coded_phy_state,
+    uint8_t  ext_payload_state,
+    uint8_t  scan_phy_state,
+    uint8_t  ch_37_state,
+    uint8_t  ch_38_state,
+    uint8_t  ch_39_state)
 {
     int8_t               res          = 0;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -250,13 +250,13 @@ api_send_all(
 #endif
     }
     print_dbgmsgnoarg("End\n");
-    return (__s8)res;
+    return (int8_t)res;
 }
 
 /***USER_CALLBACKS**/
 /*start*/
 static int
-api_ack_callback(const __u8 *const buffer)
+api_ack_callback(const uint8_t *const buffer)
 {
     int                  res          = -1;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -274,7 +274,7 @@ api_ack_callback(const __u8 *const buffer)
 }
 
 static int
-api_id_callback(const __u8 *const buffer)
+api_id_callback(const uint8_t *const buffer)
 {
     int                  res          = -1;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -292,7 +292,7 @@ api_id_callback(const __u8 *const buffer)
 }
 
 static int
-api_report_callback(const __u8 *const buffer)
+api_report_callback(const uint8_t *const buffer)
 {
     int                  res          = -1;
     re_ca_uart_payload_t uart_payload = { 0 };
@@ -313,8 +313,8 @@ api_report_callback(const __u8 *const buffer)
 
 /*end*/
 
-__s8
-api_process(__u8 state)
+int8_t
+api_process(uint8_t state)
 {
     print_dbgmsgnoarg("Enter\n");
     report_state = state;
