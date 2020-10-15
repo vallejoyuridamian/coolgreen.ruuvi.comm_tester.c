@@ -18,7 +18,7 @@
 /*start*/
 #ifndef RUUVI_ESP
 #define ONE_SYMBOL_DELAY   1 // us
-#define RX_BUFFER_MAX_SIZE 1024
+#define RX_BUFFER_MAX_SIZE 128
 #define STEP_RX_TIMEOUT    1000    // us
 #define RX_ASK_TIMEOUT     5000    // in 1000us
 #define DEFAULT_BAUDRATE   B115200 // in 1000us
