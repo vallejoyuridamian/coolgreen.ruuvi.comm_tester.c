@@ -35,6 +35,8 @@ static int
 api_id_callback(const uint8_t *const buffer);
 static int
 api_report_callback(const uint8_t *const buffer);
+static int
+api_get_all_callback(const uint8_t *const buffer);
 /*end*/
 
 /***USER_VARIABLES***/
@@ -43,17 +45,19 @@ api_callbacks_fn_t parser_callback_func_tbl = {
     .ApiAckCallback    = api_ack_callback,
     .ApiReportCallback = api_report_callback,
     .ApiIdCallback     = api_id_callback,
+    .ApiGetAllCallback = api_get_all_callback,
 };
 
 adv_callbacks_fn_t adv_callback_func_tbl_null = {
     .AdvAckCallback    = NULL,
     .AdvReportCallback = NULL,
-    .AdvIdCallback = NULL,
+    .AdvIdCallback     = NULL,
+    .AdvGetAllCallback = NULL,
 };
 
 adv_callbacks_fn_t *p_adv_callback_func_tbl = &adv_callback_func_tbl_null;
 
-uint8_t report_state = 0;
+static bool g_flag_dont_print_output_report = false;
 
 /*end*/
 
@@ -300,7 +304,7 @@ api_report_callback(const uint8_t *const buffer)
         {
             p_adv_callback_func_tbl->AdvReportCallback((void *)&uart_payload);
         }
-        if (!report_state)
+        if (!g_flag_dont_print_output_report)
         {
             formated_output_report((void *)&uart_payload);
         }
@@ -308,13 +312,31 @@ api_report_callback(const uint8_t *const buffer)
     return res;
 }
 
+static int
+api_get_all_callback(const uint8_t *const buffer)
+{
+    int                  res          = -1;
+    re_ca_uart_payload_t uart_payload = { 0 };
+
+    if (RE_SUCCESS == re_ca_uart_decode((uint8_t *)buffer, &uart_payload))
+    {
+        res = 0;
+        if (NULL != p_adv_callback_func_tbl->AdvGetAllCallback)
+        {
+            p_adv_callback_func_tbl->AdvGetAllCallback((void *)&uart_payload);
+        }
+        print_logmsgnofuncnoarg("-----GET_ALL-----\n");
+    }
+    return res;
+}
+
 /*end*/
 
 int8_t
-api_process(uint8_t state)
+api_process(const bool flag_dont_print_output_report)
 {
     print_dbgmsgnoarg("Enter\n");
-    report_state = state;
+    g_flag_dont_print_output_report = flag_dont_print_output_report;
     parse_callbacks_reg((void *)&parser_callback_func_tbl);
 #ifndef RUUVI_ESP
     while (1)
